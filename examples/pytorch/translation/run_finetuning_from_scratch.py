@@ -359,39 +359,50 @@ def main():
     # Distributed training:
     # The .from_pretrained methods guarantee that only one local process can concurrently
     # download model & vocab.
-    if 't5' in model_args.model_name_or_path:
-        config = AutoConfig.from_pretrained(
-            model_args.config_name if model_args.config_name else model_args.model_name_or_path,
-            cache_dir=model_args.cache_dir,
-            revision=model_args.model_revision,
-            use_auth_token=True if model_args.use_auth_token else None,
-        )
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
-            cache_dir=model_args.cache_dir,
-            use_fast=model_args.use_fast_tokenizer,
-            revision=model_args.model_revision,
-            use_auth_token=True if model_args.use_auth_token else None,
-        )
-        model = AutoModelForSeq2SeqLM.from_pretrained(
-            model_args.model_name_or_path,
-            from_tf=bool(".ckpt" in model_args.model_name_or_path),
-            config=config,
-            cache_dir=model_args.cache_dir,
-            revision=model_args.model_revision,
-            use_auth_token=True if model_args.use_auth_token else None,
-        )
-    else:
-        T5Tokenizer, T5ForConditionalGeneration, T5Config
-        config = T5Config(num_layers=6, num_decoder_layers=6, cache_dir=model_args.cache_dir)
-        tokenizer = T5Tokenizer.from_pretrained(
-            model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
-            cache_dir=model_args.cache_dir,
-            use_fast=model_args.use_fast_tokenizer,
-            revision=model_args.model_revision,
-            use_auth_token=True if model_args.use_auth_token else None,
-        )
-        model = T5ForConditionalGeneration(config=config, cache_dir=model_args.cache_dir)
+    #if 't5' not in model_args.model_name_or_path:
+    config = AutoConfig.from_pretrained(
+        model_args.config_name if model_args.config_name else model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
+        revision=model_args.model_revision,
+        use_auth_token=True if model_args.use_auth_token else None,
+    )
+    tokenizer = AutoTokenizer.from_pretrained(
+        model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
+        cache_dir=model_args.cache_dir,
+        use_fast=model_args.use_fast_tokenizer,
+        revision=model_args.model_revision,
+        use_auth_token=True if model_args.use_auth_token else None,
+    )
+    model = AutoModelForSeq2SeqLM.from_config(
+        config
+    ) 
+
+
+    #model = AutoModelForSeq2SeqLM.from_pretrained(
+    #    model_args.model_name_or_path,
+    #    from_tf=bool(".ckpt" in model_args.model_name_or_path),
+    #    config=config,
+    #    cache_dir=model_args.cache_dir,
+    #    revision=model_args.model_revision,
+    #    use_auth_token=True if model_args.use_auth_token else None,
+    #)
+    #else:
+        #config = T5Config(num_layers=12, num_decoder_layers=2, cache_dir=model_args.cache_dir)
+        #tokenizer = AutoTokenizer.from_pretrained(
+        #    model_args.tokenizer_name if model_args.tokenizer_name else model_args.model_name_or_path,
+        #    cache_dir=model_args.cache_dir,
+        #    use_fast=model_args.use_fast_tokenizer,
+        #    revision=model_args.model_revision,
+        #    use_auth_token=True if model_args.use_auth_token else None,
+        #)
+        #model = T5ForConditionalGeneration(config=config)
+        #model = AutoModelForSeq2SeqLM.from_pretrained(
+        #    None,
+        #    config=config,
+        #    cache_dir=model_args.cache_dir,
+        #    revision=model_args.model_revision,
+        #    use_auth_token=True if model_args.use_auth_token else None,
+        #)
 
     # We resize the embeddings only when necessary to avoid index errors. If you are creating a model from scratch
     # on a small vocab and want a smaller embedding size, remove this test.
