@@ -375,7 +375,7 @@ def main():
     )
     model = AutoModelForSeq2SeqLM.from_config(
         config
-    ) 
+    )
 
 
     #model = AutoModelForSeq2SeqLM.from_pretrained(

@@ -858,10 +858,19 @@ class T5Stack(T5PreTrainedModel):
 
         self.embed_tokens = embed_tokens
         self.is_decoder = config.is_decoder
+        if self.is_decoder:
+            self.share_dec_weights = config.share_dec_weights
+        else:
+            self.share_dec_weights = 0
 
-        self.block = nn.ModuleList(
-            [T5Block(config, has_relative_attention_bias=bool(i == 0)) for i in range(config.num_layers)]
-        )
+        if self.is_decoder and config.share_dec_weights > 0:
+            self.block = nn.ModuleList(
+                [T5Block(config, has_relative_attention_bias=bool(i == 0)) for i in range(self.share_dec_weights)]
+            )
+        else:
+            self.block = nn.ModuleList(
+                [T5Block(config, has_relative_attention_bias=bool(i == 0)) for i in range(config.num_layers)]
+            )
         self.final_layer_norm = T5LayerNorm(config.d_model, eps=config.layer_norm_epsilon)
         self.dropout = nn.Dropout(config.dropout_rate)
 
@@ -1002,9 +1011,18 @@ class T5Stack(T5PreTrainedModel):
 
         hidden_states = self.dropout(inputs_embeds)
 
-        for i, (layer_module, past_key_value) in enumerate(zip(self.block, past_key_values)):
-            layer_head_mask = head_mask[i]
-            cross_attn_layer_head_mask = cross_attn_head_mask[i]
+        for i in range(0,len(past_key_values)):
+            past_key_value = past_key_values[i]
+
+            if (self.share_dec_weights > 0):
+                idx = i % self.share_dec_weights
+                layer_module = self.block[idx]
+            else:
+                layer_module = self.block[i]
+
+        # for i, (layer_module, past_key_value) in enumerate(zip(self.block, past_key_values)):
+        #     layer_head_mask = head_mask[i]
+        #     cross_attn_layer_head_mask = cross_attn_head_mask[i]
             # Model parallel
             if self.model_parallel:
                 torch.cuda.set_device(hidden_states.device)
