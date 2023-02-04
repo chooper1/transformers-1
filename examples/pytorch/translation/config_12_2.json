@@ -16,7 +16,7 @@
   "num_heads": 8,
   "num_layers": 12,
   "num_decoder_layers": 2,
-  "share_dec_weights": 2,
+  "share_dec_weights": 0,
   "output_past": true,
   "pad_token_id": 0,
   "relative_attention_num_buckets": 32,
