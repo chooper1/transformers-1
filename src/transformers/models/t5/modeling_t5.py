@@ -1013,6 +1013,7 @@ class T5Stack(T5PreTrainedModel):
 
         #----------------------------- START PARAM SHARING CHANGES ----------------------------
         # for i, (layer_module, past_key_value) in enumerate(zip(self.block, past_key_values)):
+
         for i in range(0,len(config.num_layers)):
             past_key_value = past_key_values[i]
 
